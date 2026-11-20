@@ -7,10 +7,13 @@ public class PlayerController : MonoBehaviour
     [Header("Player stats")]
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpForce;
+    [SerializeField] bool isGrounded;
+    [SerializeField] LayerMask groundLayer;
+    [SerializeField] Transform groundCheckPos;
 
     Vector2 moveVector;
     Rigidbody2D playerRb;
-    private void start()
+    private void Start()
     {
         playerRb = GetComponent<Rigidbody2D>();
     }
@@ -19,7 +22,12 @@ public class PlayerController : MonoBehaviour
     {
         if (context.started)
         {
-            Debug.Log("Jump");
+            if (isGrounded)
+            {
+                Jump();
+            }
+            
+            Debug.Log("Pressed Jump");
 
         }
     }
@@ -32,7 +40,9 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         playerRb.linearVelocity = new Vector2(moveVector.x * moveSpeed, playerRb.linearVelocity.y);
+        CheckForGround();
     }
+
     
     void Jump()
     {
@@ -40,4 +50,21 @@ public class PlayerController : MonoBehaviour
         playerRb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
     }
 
+
+    void CheckForGround()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheckPos.position, 0.2f, groundLayer);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (isGrounded)
+        {
+            Gizmos.color = Color.green;
+        }
+        else
+        {
+            Gizmos.color = Color.red;
+        }
+    }
 }
